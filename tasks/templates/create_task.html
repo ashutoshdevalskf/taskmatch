@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Task{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-title">Create a New Task</h2>
+  <form method="post" class="task-form">
+    {% csrf_token %}
+    
+    <!-- Title -->
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" placeholder="Enter task title" required>
+    </div>
+    
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" placeholder="Describe the task in detail" rows="4" required></textarea>
+    </div>
+    
+    <!-- Location Name -->
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input type="text" id="location" name="location" placeholder="Enter location name" required>
+    </div>
+    
+    <!-- Map picker -->
+    <div class="form-group">
+      <label for="map">Pick task location</label>
+      <div id="map" class="map-container"></div>
+    </div>
+    <!-- hidden latitude/longitude fields -->
+    <input type="hidden" id="latitude"  name="latitude"  required>
+    <input type="hidden" id="longitude" name="longitude" required>
+    
+    <!-- Availability -->
+    <div class="form-row">
+      <div class="form-group half">
+        <label for="available_from">Available from</label>
+        <input type="datetime-local" id="available_from" name="available_from" required>
+      </div>
+      <div class="form-group half">
+        <label for="available_to">Available to</label>
+        <input type="datetime-local" id="available_to" name="available_to" required>
+      </div>
+    </div>
+    
+    <!-- Payment & Duration -->
+    <div class="form-row">
+      <div class="form-group half">
+        <label for="payment">Payment</label>
+        <input type="text" id="payment" name="payment" placeholder="e.g. $50" required>
+      </div>
+      <div class="form-group half">
+        <label for="duration">Duration (minutes)</label>
+        <input type="number" id="duration" name="duration_in_minutes" placeholder="e.g. 120" required>
+      </div>
+    </div>
+    
+    <!-- Required Skills -->
+    <div class="form-group">
+      <label for="skill-search">Required Skills</label>
+      <div class="skill-selector">
+        <div class="skill-search-container">
+          <input type="text" id="skill-search" placeholder="Search for skills...">
+          <button type="button" id="search-btn" class="search-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="skill-dropdown">
+          {% for skill in skills %}
+            <div class="skill-option">
+              <label>
+                <input type="checkbox" name="skills" value="{{ skill.id }}">
+                <span>{{ skill.name }}</span>
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        <div id="selected-skills" class="selected-skills">
+          <!-- Selected skills will appear here as tags -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submit -->
+    <div class="form-group">
+      <button type="submit" class="submit-button">Create Task</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  /* ── your original CSS ── */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .form-title {
+    margin-bottom: 1.5rem;
+    color: #2563eb;
+    font-size: 1.75rem;
+  }
+  .task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .form-group.half {
+    flex: 1;
+  }
+  label {
+    font-weight: 500;
+    color: #4b5563;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="datetime-local"],
+  textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .skill-selector {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  .skill-search-container {
+    display: flex;
+    position: relative;
+  }
+  #skill-search {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid #d1d5db;
+    border-radius: 0;
+  }
+  .search-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+  }
+  .skill-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+  }
+  .skill-dropdown.active {
+    display: block;
+  }
+  .skill-option {
+    padding: 0.5rem 0.75rem;
+  }
+  .skill-option:hover {
+    background-color: #f3f4f6;
+  }
+  .skill-option label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  .selected-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .skill-tag {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+  }
+  .remove-skill {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #4338ca;
+    color: white;
+    font-size: 0.75rem;
+  }
+  .submit-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+  }
+  .submit-button:hover {
+    background-color: #1d4ed8;
+  }
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+  }
+
+  /* ── map container styling ── */
+  .map-container {
+    width: 100%;
+    height: 300px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+  }
+</style>
+
+<script>
+  // ── your existing JS for skill search & tags ──
+  document.addEventListener('DOMContentLoaded', function() {
+    const skillSearch = document.getElementById('skill-search');
+    const searchBtn = document.getElementById('search-btn');
+    const skillDropdown = document.querySelector('.skill-dropdown');
+    const skillOptions = document.querySelectorAll('.skill-option');
+    const selectedSkillsContainer = document.getElementById('selected-skills');
+    
+    skillSearch.addEventListener('focus', () => skillDropdown.classList.add('active'));
+    skillSearch.addEventListener('input', function() {
+      const term = this.value.toLowerCase();
+      skillOptions.forEach(opt => {
+        const name = opt.querySelector('span').textContent.toLowerCase();
+        opt.style.display = name.includes(term) ? 'block' : 'none';
+      });
+    });
+    searchBtn.addEventListener('click', () => {
+      skillDropdown.classList.toggle('active');
+    });
+    document.querySelectorAll('input[name="skills"]').forEach(cb =>
+      cb.addEventListener('change', updateSelectedSkills)
+    );
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.skill-selector') &&
+          !e.target.matches('#skill-search') &&
+          !e.target.matches('#search-btn')
+      ) {
+        skillDropdown.classList.remove('active');
+      }
+    });
+    function updateSelectedSkills() {
+      selectedSkillsContainer.innerHTML = '';
+      document.querySelectorAll('input[name="skills"]:checked').forEach(cb => {
+        const name = cb.nextElementSibling.textContent;
+        const tag = document.createElement('div');
+        tag.className = 'skill-tag';
+        tag.innerHTML = `${name} <span class="remove-skill" data-skill-id="${cb.value}">×</span>`;
+        selectedSkillsContainer.appendChild(tag);
+      });
+      document.querySelectorAll('.remove-skill').forEach(btn =>
+        btn.addEventListener('click', function() {
+          const id = this.dataset.skillId;
+          document.querySelector(`input[name="skills"][value="${id}"]`).checked = false;
+          updateSelectedSkills();
+        })
+      );
+    }
+  });
+</script>
+
+<script>
+  // ── Google Maps logic ──
+  let map, marker;
+  function initMap() {
+    const defaultPos = { lat: 31.2554, lng: 75.7050 };
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: defaultPos,
+      zoom: 15,
+    });
+
+    // Try HTML5 geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          map.setCenter(loc);
+          placeMarker(loc);
+        },
+        () => {
+          map.setCenter(defaultPos);
+        }
+      );
+    }
+
+    // Click to place or move marker
+    map.addListener('click', e => placeMarker(e.latLng));
+  }
+
+  function placeMarker(latLng) {
+    if (marker) {
+      marker.setPosition(latLng);
+    } else {
+      marker = new google.maps.Marker({
+        position: latLng,
+        map,
+        draggable: true,
+      });
+      marker.addListener('dragend', () => updateFields(marker.getPosition()));
+    }
+    updateFields(latLng);
+  }
+
+  function updateFields(latLng) {
+    document.getElementById('latitude').value  = latLng.lat();
+    document.getElementById('longitude').value = latLng.lng();
+  }
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/gh/somanchiu/Keyless-Google-Maps-API@v6.9/mapsJavaScriptAPI.js"></script>
+
+{% endblock %}

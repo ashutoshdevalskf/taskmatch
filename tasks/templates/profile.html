@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      {{ user.username|slice:":1"|upper }}
+    </div>
+    <div class="profile-title">
+      <h1>{{ user.username }}'s Profile</h1>
+      {% if user.userprofile.average_rating %}
+        <div class="rating-display">
+          <div class="stars">
+            {% with ''|center:5 as range %}
+            {% for _ in range %}
+              {% if forloop.counter <= user.userprofile.average_rating|floatformat:0 %}
+                <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              {% else %}
+                <svg class="star" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              {% endif %}
+            {% endfor %}
+            {% endwith %}
+          </div>
+          <span class="rating-value">{{ user.userprofile.average_rating|floatformat:1 }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="profile-cards">
+    <div class="profile-card">
+      <h3 class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Contact Information
+      </h3>
+      <div class="info-group">
+        <div class="info-label">Username</div>
+        <div class="info-value">{{ user.username }}</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">Email</div>
+        <div class="info-value">{{ user.email }}</div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <h3 class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        Skills
+      </h3>
+      <div class="skills-container">
+        {% if user.userprofile.skills.all %}
+          <div class="skill-tags">
+            {% for skill in user.userprofile.skills.all %}
+              <span class="skill-tag">{{ skill.name }}</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="no-skills">No skills added yet</div>
+        {% endif %}
+      </div>
+      <a href="#" class="edit-link">Edit Skills</a>
+    </div>
+
+    <div class="profile-card tasks-overview">
+      <h3 class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Tasks Overview
+      </h3>
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-value">{{ user.created_tasks.count|default:"0" }}</div>
+          <div class="stat-label">Created</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ user.applications.count|default:"0" }}</div>
+          <div class="stat-label">Applied</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ user.completed_tasks.count|default:"0" }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .profile-avatar {
+    width: 5rem;
+    height: 5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  
+  .profile-title h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #1f2937;
+  }
+  
+  .rating-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .stars {
+    display: flex;
+    align-items: center;
+    color: #d1d5db;
+  }
+  
+  .star.filled {
+    color: #fbbf24;
+  }
+  
+  .rating-value {
+    font-weight: 600;
+    color: #4b5563;
+  }
+  
+  .profile-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .profile-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .tasks-overview {
+    grid-column: 1 / -1;
+  }
+  
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    color: #2563eb;
+    font-size: 1.125rem;
+  }
+  
+  .info-group {
+    margin-bottom: 1rem;
+  }
+  
+  .info-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .info-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+  
+  .info-value {
+    color: #1f2937;
+    font-weight: 500;
+  }
+  
+  .skills-container {
+    margin-bottom: 1rem;
+  }
+  
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .skill-tag {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .no-skills {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+  
+  .edit-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: #2563eb;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+  
+  .edit-link:hover {
+    text-decoration: underline;
+  }
+  
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-item {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  @media (max-width: 640px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .rating-display {
+      justify-content: center;
+    }
+    
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

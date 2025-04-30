@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+<div class="task-detail-container">
+  <div class="task-header">
+    <div class="back-link">
+      <a href="{% url 'task_list' %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Tasks
+      </a>
+    </div>
+    <h1 class="task-title">{{ task.title }}</h1>
+    <div class="task-status {{ task.status|lower }}">{{ task.status }}</div>
+  </div>
+
+  <div class="task-grid">
+    <div class="task-info-card">
+      <h3 class="card-title">Task Details</h3>
+      <div class="task-description">
+        {{ task.description }}
+      </div>
+      
+      <div class="task-meta">
+        <div class="meta-item">
+          <div class="meta-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            Payment
+          </div>
+          <div class="meta-value">{{ task.payment }}</div>
+        </div>
+
+        <div class="meta-item">
+          <div class="meta-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Duration
+          </div>
+          <div class="meta-value">{{ task.duration_in_minutes }} minutes</div>
+        </div>
+
+        <div class="meta-item">
+          <div class="meta-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Location
+          </div>
+          <div class="meta-value">{{ task.location }}</div>
+        </div>
+      </div>
+
+      <div class="task-skills">
+        <h4>Skills Required</h4>
+        <div class="skill-tags">
+          {% for s in task.skills.all %}
+            <span class="skill-tag">{{ s.name }}</span>
+          {% empty %}
+            <span class="no-skills">No specific skills required</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="task-dates">
+        <div class="date-item">
+          <span class="date-label">Available From:</span>
+          <span class="date-value">{{ task.available_from|date:"M d, Y H:i" }}</span>
+        </div>
+        <div class="date-item">
+          <span class="date-label">Available To:</span>
+          <span class="date-value">{{ task.available_to|date:"M d, Y H:i" }}</span>
+        </div>
+      </div>
+      
+      {% if task.status == "available" %}
+        <a href="{% url 'apply_task' task.id %}" class="apply-button">Apply for this Task</a>
+      {% elif task.status == "in_progress" %}
+        <div class="task-assigned-banner">This task has been assigned</div>
+      {% elif task.status == "Completed" %}
+        <div class="task-completed-banner">This task has been completed</div>
+      {% endif %}
+    </div>
+
+    <div class="applicants-card">
+      <h3 class="card-title">Applicants</h3>
+      {% if task.applications.all %}
+        <div class="applicants-list">
+          {% for app in task.applications.all %}
+            <div class="applicant-item">
+              <div class="applicant-info">
+                <div class="applicant-avatar">
+                  {{ app.user.username|slice:":1"|upper }}
+                </div>
+                <div class="applicant-details">
+                  <div class="applicant-name">{{ app.user.username }}</div>
+                  <div class="applicant-rating">
+                    <div class="stars">
+                      {% with ''|center:5 as range %}
+                      {% for _ in range %}
+                        {% if forloop.counter <= profile.average_rating|default:0 %}
+                          <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          </svg>
+                        {% else %}
+                          <svg class="star" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          </svg>
+                        {% endif %}
+                      {% endfor %}
+                      {% endwith %}
+                    </div>
+                    <span class="rating-text">{{ app.rating }}/5</span>
+                  </div>
+                </div>
+              </div>
+              {% if app.status %}
+                <div class="app-status {{ app.status|lower }}">{{ app.status }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-applicants">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <p>No applicants yet</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .task-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .task-header {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  
+  .back-link {
+    margin-bottom: 1rem;
+  }
+  
+  .back-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .back-link a:hover {
+    color: #2563eb;
+  }
+  
+  .task-title {
+    font-size: 2rem;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    padding-right: 100px;
+  }
+  
+  .task-status {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .task-status.open {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  
+  .task-status.assigned {
+    background-color: #e0f2fe;
+    color: #075985;
+  }
+  
+  .task-status.completed {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+  
+  .task-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 1.5rem;
+  }
+  
+  .task-info-card, .applicants-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    color: #2563eb;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .task-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+  }
+  
+  .task-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .meta-item {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+  }
+  
+  .meta-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .meta-value {
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .task-skills {
+    margin-bottom: 1.5rem;
+  }
+  
+  .task-skills h4 {
+    font-size: 1rem;
+    color: #4b5563;
+    margin: 0 0 0.75rem 0;
+  }
+  
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .skill-tag {
+    background-color: #e0e7ff;
+    color: #4338ca;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .no-skills {
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+  
+  .task-dates {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .date-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .date-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .date-label {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  .date-value {
+    font-weight: 500;
+    color: #1f2937;
+  }
+  
+  .apply-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    text-align: center;
+    transition: background-color 0.2s;
+  }
+  
+  .apply-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .task-assigned-banner, .task-completed-banner {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .applicants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .applicant-item {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .applicant-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .applicant-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .applicant-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+  
+  .applicant-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  
+  .stars {
+    display: flex;
+    color: #d1d5db;
+  }
+  
+  .star.filled {
+    color: #fbbf24;
+  }
+  
+  .rating-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .app-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+  }
+  
+  .app-status.pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  .app-status.accepted {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  
+  .app-status.rejected {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .no-applicants {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #6b7280;
+    text-align: center;
+  }
+  
+  .no-applicants svg {
+    color: #d1d5db;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .task-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .task-meta {
+      grid-template-columns: 1fr;
+    }
+    
+    .task-title {
+      padding-right: 0;
+      margin-top: 2rem;
+    }
+    
+    .task-status {
+      position: static;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+{% endblock %}

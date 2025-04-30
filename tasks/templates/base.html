@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}TaskMatch{% endblock %}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Reset and base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      /* Header styles */
+      header {
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo a {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2563eb;
+        text-decoration: none;
+      }
+
+      .main-nav ul {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .main-nav a {
+        text-decoration: none;
+        color: #4b5563;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .main-nav a:hover {
+        color: #2563eb;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .btn-login {
+        background-color: transparent;
+        border: 1px solid #2563eb;
+        color: #2563eb;
+      }
+
+      .btn-login:hover {
+        background-color: rgba(37, 99, 235, 0.1);
+      }
+
+      .btn-signup,
+      .btn-create {
+        background-color: #2563eb;
+        color: white !important;
+      }
+
+      .btn-signup:hover,
+      .btn-create:hover {
+        background-color: #1d4ed8;
+      }
+
+      .btn-logout {
+        background-color: #f3f4f6;
+        color: #4b5563;
+      }
+
+      .btn-logout:hover {
+        background-color: #e5e7eb;
+      }
+
+      /* Main content area */
+      main {
+        flex: 1;
+        padding: 2rem 0;
+      }
+
+     
+      .content {
+        background-color: #fff;
+        
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+      }
+
+      /* Footer styles */
+      footer {
+        background-color: #fff;
+        border-top: 1px solid #e5e7eb;
+        padding: 1.5rem 0;
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.875rem;
+      }
+
+      /* Auth Styles - add to your CSS file */
+      .auth-container {
+        max-width: 400px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+      }
+
+      .auth-title {
+        margin-bottom: 24px;
+        font-size: 24px;
+        text-align: center;
+        color: #333;
+      }
+
+      .auth-form .form-group {
+        margin-bottom: 18px;
+      }
+
+      .auth-form label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+      }
+
+      .auth-form input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: border-color 0.2s;
+      }
+
+      .auth-form input:focus {
+        border-color: #4a90e2;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+      }
+
+      .auth-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        background-color: #4a90e2;
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .auth-button:hover {
+        background-color: #3a80d2;
+      }
+
+      .auth-alt {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .auth-help {
+        margin-top: 12px;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .auth-alt a,
+      .auth-help a {
+        color: #4a90e2;
+        text-decoration: none;
+      }
+
+      .auth-alt a:hover,
+      .auth-help a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .main-nav ul {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 1rem;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="/static/tasks/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="navbar">
+          <div class="logo">
+            <a href="{% url 'task_list' %}">TaskMatch</a>
+          </div>
+          <nav class="main-nav">
+            <ul>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'task_list' %}">Home</a></li>
+                <li>
+                    <a href="{% url 'create_task' %}" class="btn btn-create"
+                    >Create Task</a
+                    >
+                </li>
+              <li><a href="{% url 'profile' %}">Profile</a></li>
+              <li>
+                <a href="{% url 'logout' %}" class="btn btn-logout">Logout</a>
+              </li>
+              {% else %}
+              <li>
+                <a href="{% url 'login' %}" class="btn btn-login">Login</a>
+              </li>
+              <li>
+                <a href="{% url 'signup' %}" class="btn btn-signup">Signup</a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="content">{% block content %}{% endblock %}</div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>&copy; {% now "Y" %} Task Platform. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
